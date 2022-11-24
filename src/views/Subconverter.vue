@@ -266,7 +266,7 @@ const project = process.env.VUE_APP_PROJECT
 const remoteConfigSample = process.env.VUE_APP_SUBCONVERTER_REMOTE_CONFIG
 const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
-const shortUrlBackend = process.env.VUE_APP_MYURLS_DEFAULT_BACKEND + '/short'
+const shortUrlBackend = process.env.VUE_APP_MYURLS_DEFAULT_BACKEND + '/api/v2/action/shorten'
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_BACKEND + '/config/upload'
 const tgBotLink = process.env.VUE_APP_BOT_LINK
 
@@ -555,22 +555,20 @@ export default {
 
       this.loading = true;
 
-      let data = new FormData();
-      data.append("longUrl", btoa(this.customSubUrl));
-
       this.$axios
-        .post(shortUrlBackend, data, {
-          header: {
-            "Content-Type": "application/form-data; charset=utf-8"
-          }
+        .post(shortUrlBackend, {
+            key : '785b0c7ca1b0f82910c39e35028380',
+            url : this.customSubUrl,
+            is_secret : true,
+            response_type: 'json'
         })
         .then(res => {
-          if (res.data.Code === 1 && res.data.ShortUrl !== "") {
-            this.curtomShortSubUrl = res.data.ShortUrl;
-            this.$copyText(res.data.ShortUrl);
+          if (res.data.result !== null && res.data.result !== "") {
+            this.curtomShortSubUrl = res.data.result;
+            this.$copyText(res.data.result);
             this.$message.success("短链接已复制到剪贴板");
           } else {
-            this.$message.error("短链接获取失败：" + res.data.Message);
+            this.$message.error("短链接获取失败：" + res.data.error);
           }
         })
         .catch(() => {
